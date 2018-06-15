@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NavneVelger.Data;
+using NavneVelger.DataContexts;
 
 namespace NavneVelger
 {
@@ -29,6 +30,9 @@ namespace NavneVelger
             {
                 ApplicationDbContext context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 context.Database.Migrate();
+
+                BokerDb bokerContext = scope.ServiceProvider.GetRequiredService<BokerDb>();
+                bokerContext.Database.Migrate();
             }
         }
 

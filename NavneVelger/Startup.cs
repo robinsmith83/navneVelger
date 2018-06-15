@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NavneVelger.Data;
 using NavneVelger.Models;
 using NavneVelger.Services;
+using NavneVelger.DataContexts;
 
 namespace NavneVelger
 {
@@ -27,6 +28,9 @@ namespace NavneVelger
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<BokerDb>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
