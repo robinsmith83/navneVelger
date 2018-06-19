@@ -7,35 +7,90 @@
 
 <h2>Mer info</h2>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="EditBok">
+<ul class="nav nav-tabs">
+    <li><a href="#hjem" data-toggle="tab">Legg til merker</a></li>
+    <li><a href="#merkeStreng" data-toggle="tab">Bytte-strenger</a></li>
+    <li><a href="#sjekkBytte" data-toggle="tab">Sjekk bytter</a></li>
+</ul>
+
+<div class="row tab-content">
+    <div class="col-md-12 tab-pane fade in active" id="hjem">
+        <br />
+        <form asp-action="EditBok" role="form">
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Navn" class="control-label"></label>
-                <input asp-for="Navn" class="form-control" />
-                <span asp-validation-for="Navn" class="text-danger"></span>
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label asp-for="Navn" class="control-label"></label>
+                    <input asp-for="Navn" class="form-control" />
+                    <span asp-validation-for="Navn" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="MerkeString" class="control-label"></label>
-                <textarea asp-for="MerkeString" class="form-control" ></textarea>
-                <span asp-validation-for="MerkeString" class="text-danger"></span>
+            <div class="row">
+                <div class="form-group col-md-8">
+                    <label asp-for="MerkeString" class="control-label"></label>
+                    <textarea asp-for="MerkeString" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="MerkeString" class="text-danger"></span>
+                </div>
             </div>
-
-            <div class="form-group">
-                <input type="submit" value="Lagre" class="btn btn-default" />
+            <div class="row">
+                <div class="form-group col-md-1">
+                    <input type="submit" value="Lagre" class="btn btn-default" />
+                </div>
             </div>
         </form>
     </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        @Html.DisplayFor(x => x.BytteString)
+    <div class="tab-pane fade" id="merkeStreng">
+        <br />
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Byttemerker - @Html.DisplayFor(x => x.BytteMerker)
+                </div>
+                <div class="panel-body">
+                    @Html.DisplayFor(x => x.BytteString)
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Mangler - @Html.DisplayFor(x => x.ManglerAntall)
+                </div>
+                <div class="panel-body">
+                    @Html.DisplayFor(x => x.Mangler)
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-6">
-        @Html.DisplayFor(x => x.Mangler)
+
+    <div class="tab-pane fade" id="sjekkBytte">
+        <br />
+        <div class="col-md-12">
+            <form asp-action="SjekkBytte" role="form">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="row">
+                    <div class="form-group col-md-8">
+                        <label class="control-label">X mangler</label>
+                        <textarea asp-for="xMangler" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-8">
+                        <label class="control-label">X har å bytte</label>
+                        <textarea asp-for="xDublett" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-1">
+                        <input type="submit" value="Sjekk" class="btn btn-default" />
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

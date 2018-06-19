@@ -199,7 +199,9 @@ namespace NavneVelger.Controllers
             KlistremerkebokViewModel model = new KlistremerkebokViewModel
             {
                 StatusMessage = StatusMessage,
-                Boker = _context.Boker.Include(x => x.Type).Include(x => x.Merker).Include(x => x.Eier).ToList()
+                Boker = _context.Boker.Include(x => x.Type).Include(x => x.Merker).Include(x => x.Eier).ToList(),
+                Merker = _context.Merker.ToList()
+                
             };
             return View(model);
         }
@@ -318,7 +320,8 @@ namespace NavneVelger.Controllers
                 StatusMessage = StatusMessage,
                 Aar = bok.Aar,
                 Navn = bok.Navn,
-                Merker = bok.Merker                
+                Merker = bok.Merker,
+                TotaltAntallMerker = bok.TotaltAntallMerker
             };
             return View(model);
         }
@@ -369,6 +372,64 @@ namespace NavneVelger.Controllers
 
             return RedirectToAction(nameof(Klistremerkebok));
         }
+
+        [HttpPost, ActionName("SjekkBytte")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SjekkBytter(KlistremerkebokViewModel model)
+        {
+            KlistremerkeBok bok = await _context.Boker.Include(x => x.Merker).SingleOrDefaultAsync(m => m.Id == model.Id);
+
+            bok.Navn = model.Navn;
+
+            string[] xMangler = string.IsNullOrEmpty(model.xMangler) ?
+                new string[] { } :
+                model.xMangler.Split(new[] { ",", " ", ";", "-", "\r\n", "\r", "\n", "." }, StringSplitOptions.RemoveEmptyEntries);
+
+            string[] xDubletter = string.IsNullOrEmpty(model.xDublett) ?
+                new string[] { } :
+                model.xDublett.Split(new[] { ",", " ", ";", "-", "\r\n", "\r", "\n", "." }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (bok.Merker == null)
+                bok.Merker = new List<Merke>();
+
+            string jegHarTilX = "";
+            string xHarTilMeg = "";
+            int antJegHarTilX = 0;
+            int antXharTilMeg = 0;
+            foreach (string s in xMangler)
+            {
+                int nummer = int.Parse(s);
+                bool jegHarEkstra = bok.Merker.Any(x => x.Nummer == nummer && !x.klistretInn);
+
+                if (jegHarEkstra)
+                {
+                    jegHarTilX += $"{s}-";
+                    antJegHarTilX++;
+                }
+            }
+
+            foreach (string s in xDubletter)
+            {
+                int nummer = int.Parse(s);
+                bool xHarSomJegMangler = !bok.Merker.Any(x => x.Nummer == nummer);
+
+                if (xHarSomJegMangler)
+                {
+                    xHarTilMeg += $"{s}-";
+                    antXharTilMeg++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(jegHarTilX))
+                StatusMessage += $"Jeg har {antJegHarTilX} til x: {jegHarTilX.Remove(jegHarTilX.Length - 1)}";
+
+            if (!string.IsNullOrEmpty(xHarTilMeg))
+                StatusMessage += $"X har {antXharTilMeg} til meg: {xHarTilMeg.Remove(xHarTilMeg.Length - 1)}";
+
+            return RedirectToAction(nameof(Klistremerkebok));
+        }
+
 
     }
 }

@@ -51,20 +51,33 @@ namespace NavneVelger.Models.PaniniViewModels
             get
             {
                 string s = "";
-                List<string> klistretInn = Merker.OrderBy(x => x.Nummer)
+
+                if (Merker == null)
+                    return "";
+
+                List<int> klistretInn = Merker.OrderBy(x => x.Nummer).Where(x => x.klistretInn).Select(x => x.Nummer).ToList();
+
                 for (int i = 0; i <= TotaltAntallMerker; i++)
                 {
-
+                    if (!klistretInn.Contains(i))
+                        s += $"{i}-";
                 }
 
+                if (!string.IsNullOrEmpty(s))
+                    s = s.Remove(s.Length - 1);
 
-                if (Merker != null)
-                    return String.Join(" - ", Merker.OrderBy(x => x.Nummer).Where(x => !x.klistretInn).Select(x => x.Nummer));
-
-                return "";
+                return s;
             }
         }
-
+        public int ManglerAntall
+        {
+            get
+            {
+                return Merker == null ? 
+                    0 : 
+                    TotaltAntallMerker + 1 - Merker.OrderBy(x => x.Nummer).Where(x => x.klistretInn).Count();
+            }
+        }
 
         [Display(Name = "Totalt antall merker")]
         public int TotaltAntallMerker { get; set; }
@@ -96,5 +109,8 @@ namespace NavneVelger.Models.PaniniViewModels
         public List<KlistremerkeBok> Boker { get; set; }
 
         public string StatusMessage { get; set; }
+
+        public string xMangler { get; set; }
+        public string xDublett { get; set; }
     }
 }
