@@ -430,6 +430,37 @@ namespace NavneVelger.Controllers
             return RedirectToAction(nameof(Klistremerkebok));
         }
 
+        [HttpPost, ActionName("FjernBytteMerker")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> FjernBytteMerker(KlistremerkebokViewModel model)
+        {
+            KlistremerkeBok bok = await _context.Boker.Include(x => x.Merker).SingleOrDefaultAsync(m => m.Id == model.Id);
+
+            string[] fjernDisse = string.IsNullOrEmpty(model.fjernDisse) ?
+                new string[] { } :
+                model.xMangler.Split(new[] { ",", " ", ";", "-", "\r\n", "\r", "\n", "." }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<Merke> merker = _context.Merker
+                .ToList()
+                .Where(x => x.BokId == model.Id && !x.klistretInn)
+                .ToList();
+
+            foreach (string s in fjernDisse)
+            {
+
+                Merke fjern = merker.FirstOrDefault(x => x.Nummer == int.Parse(s));
+
+                if (fjern != null)
+                    _context.Merker.Remove(fjern);
+            }
+
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Klistremerkebok));
+        }
+
+
 
     }
 }

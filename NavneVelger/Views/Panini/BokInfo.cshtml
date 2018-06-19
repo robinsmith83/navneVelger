@@ -11,6 +11,7 @@
     <li><a href="#hjem" data-toggle="tab">Legg til merker</a></li>
     <li><a href="#merkeStreng" data-toggle="tab">Bytte-strenger</a></li>
     <li><a href="#sjekkBytte" data-toggle="tab">Sjekk bytter</a></li>
+    <li><a href="#fjernBytteMerker" data-toggle="tab">Fjern byttemerker</a></li>
 </ul>
 
 <div class="row tab-content">
@@ -87,6 +88,27 @@
                 <div class="row">
                     <div class="form-group col-md-1">
                         <input type="submit" value="Sjekk" class="btn btn-default" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="fjernBytteMerker">
+        <br />
+        <div class="col-md-12">
+            <form asp-action="FjernBytteMerker" role="form">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="row">
+                    <div class="form-group col-md-8">
+                        <textarea asp-for="fjernDisse" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-1">
+                        <input type="submit" value="Fjern" class="btn btn-default" />
                     </div>
                 </div>
             </form>

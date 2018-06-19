@@ -40,7 +40,7 @@ namespace NavneVelger.Models.PaniniViewModels
             get
             {
                 if (Merker != null)
-                    return String.Join(" - ", Merker.OrderBy(x => x.Nummer).Where(x => !x.klistretInn).Select(x => x.Nummer));
+                    return String.Join("-", Merker.OrderBy(x => x.Nummer).Where(x => !x.klistretInn).Select(x => x.Nummer));
 
                 return "";
             }
@@ -112,5 +112,6 @@ namespace NavneVelger.Models.PaniniViewModels
 
         public string xMangler { get; set; }
         public string xDublett { get; set; }
+        public string fjernDisse { get; set; }
     }
 }
