@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 
 namespace Panini.Entities
@@ -15,14 +16,27 @@ namespace Panini.Entities
 
         public int Aar { get; set; }
 
-        [Required]
         [StringLength(255)]
         public string Navn { get; set; }
 
-        [Required]
         public BokType Type { get; set; }
-        [Required]
         public Eier Eier { get; set; }
         public List<Merke> Merker { get; set; }
+        public int TotaltAntallMerker { get; set; }
+        public string MerkerAvTotalt
+        {
+            get
+            {
+                return $"{Merker.Count(x => x.klistretInn)}/{TotaltAntallMerker}";
+            }
+        }
+        public int BytteMerker
+        {
+            get
+            {
+                return Merker.Count(x => !x.klistretInn);
+            }
+        }
+
     }
 }

@@ -33,10 +33,6 @@ namespace NavneVelger.Controllers
         {
             return View();
         }
-        public IActionResult Panini()
-        {
-            return View();
-        }
 
         public IActionResult Error()
         {

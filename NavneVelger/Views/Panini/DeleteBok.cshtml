@@ -1,0 +1,26 @@
+﻿@model KlistremerkebokViewModel
+@using NavneVelger.Views.Panini
+@{
+    ViewData["Title"] = "DeleteBok";
+    ViewData.AddActivePaniniPage(ManagePaniniPages.DeleteBok);
+}
+
+<h2>Slett</h2>
+
+<h3>Er du sikker?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayFor(model => model.Navn)
+        </dt>
+        <dd>
+            <form asp-action="DeleteBok">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="Slett" class="btn btn-default" /> |
+                <a asp-action="Klistremerkebok">Back to List</a>
+            </form>
+
+        </dd>
+    </dl>
+</div>

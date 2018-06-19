@@ -7,6 +7,10 @@ namespace Panini.Entities
 {
     public class Eier
     {
+        public Eier()
+        {
+            Boker = new List<KlistremerkeBok>();
+        }
         public int Id { get; set; }
 
         [Required]

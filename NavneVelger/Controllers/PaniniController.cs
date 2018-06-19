@@ -1,0 +1,374 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using NavneVelger.DataContexts;
+using NavneVelger.Models;
+using NavneVelger.Models.PaniniViewModels;
+using Panini.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace NavneVelger.Controllers
+{
+    public class PaniniController : Controller
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly BokerDb _context;
+
+        [TempData]
+        public string StatusMessage { get; set; }
+
+        public PaniniController(
+          UserManager<ApplicationUser> userManager,
+          BokerDb context
+            )
+        {
+            _userManager = userManager;
+            _context = context;
+        }
+
+        //[Authorize]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Eier()
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            EierViewModel model = new EierViewModel
+            {
+                StatusMessage = StatusMessage,
+                Eiere = await _context.Eiere.ToListAsync()
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Eier(EierViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            Eier eier = new Eier
+            {
+                Navn = model.Navn
+            };
+
+            await _context.Eiere.AddAsync(eier);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Eier));
+        }
+
+        // GET: Eier/Delete/5
+        public async Task<IActionResult> DeleteEier(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Eier eier = await _context.Eiere
+                .SingleOrDefaultAsync(m => m.Id == id);
+            if (eier == null)
+            {
+                return NotFound();
+            }
+
+            EierViewModel model = new EierViewModel
+            {
+                StatusMessage = StatusMessage,
+                Navn = eier.Navn,
+                Id = eier.Id
+            };
+
+
+            return View(model);
+        }
+
+        // POST: Eier/Delete/5
+        [HttpPost, ActionName("DeleteEier")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteEierConfirmed(int id)
+        {
+            Eier slettEier = await _context.Eiere.SingleOrDefaultAsync(m => m.Id == id);
+
+            _context.Eiere.Remove(slettEier);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Eier));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Type()
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            TypeViewModel model = new TypeViewModel
+            {
+                StatusMessage = StatusMessage,
+                BokTyper = await _context.BokTyper.ToListAsync()
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Type(TypeViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            BokType bokType = new BokType
+            {
+                Type = model.Navn
+            };
+
+            await _context.BokTyper.AddAsync(bokType);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Type));
+        }
+
+        // GET: Eier/Delete/5
+        public async Task<IActionResult> DeleteType(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            BokType type = await _context.BokTyper
+                .SingleOrDefaultAsync(m => m.Id == id);
+            if (type == null)
+            {
+                return NotFound();
+            }
+
+            TypeViewModel model = new TypeViewModel
+            {
+                StatusMessage = StatusMessage,
+                Navn = type.Type,
+                Id = type.Id
+            };
+
+
+            return View(model);
+        }
+
+        // POST: Eier/Delete/5
+        [HttpPost, ActionName("DeleteType")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTypeConfirmed(int id)
+        {
+            BokType type = await _context.BokTyper.SingleOrDefaultAsync(m => m.Id == id);
+
+            _context.BokTyper.Remove(type);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Type));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Klistremerkebok()
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            KlistremerkebokViewModel model = new KlistremerkebokViewModel
+            {
+                StatusMessage = StatusMessage,
+                Boker = _context.Boker.Include(x => x.Type).Include(x => x.Merker).Include(x => x.Eier).ToList()
+            };
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LeggTilBok()
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            var eiere = _context.Eiere.OrderBy(x => x.Navn).Select(x => new { Id = x.Id.ToString(), Value = x.Navn });
+            var bokTyper = _context.BokTyper.OrderBy(x => x.Type).Select(x => new { Id = x.Id.ToString(), Value = x.Type });
+
+            List<int> aarList = new List<int>();
+            for (int i = 1958; i < DateTime.Now.Year+2; i++)
+            {
+                aarList.Add(i);
+            }
+
+            var tilgjengeligeAar = aarList.OrderByDescending(x => x).Select(x => new { Id = x.ToString(), Value = x.ToString() });
+
+            KlistremerkebokViewModel model = new KlistremerkebokViewModel
+            {
+                StatusMessage = StatusMessage,
+                BokTyper = new SelectList(bokTyper, "Id", "Value"),                
+                Eiere = new SelectList(eiere, "Id", "Value"),
+                AarList = new SelectList(tilgjengeligeAar, "Id", "Value")
+            };
+
+            model.Eiere.First().Selected = true;
+            model.BokTyper.First().Selected = true;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LeggTilBok(KlistremerkebokViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            KlistremerkeBok bok = new KlistremerkeBok
+            {
+                Aar = model.Aar,
+                Eier = _context.Eiere.ToList().First(x => x.Id == model.EierId),
+                Type = _context.BokTyper.ToList().First(x => x.Id == model.BokTypeId),
+                Navn = model.Navn,
+                TotaltAntallMerker = model.TotaltAntallMerker
+            };
+
+            await _context.Boker.AddAsync(bok);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Type));
+        }
+
+        // GET: Eier/Delete/5
+        public async Task<IActionResult> DeleteBok(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            KlistremerkeBok bok = await _context.Boker
+                .SingleOrDefaultAsync(m => m.Id == id);
+            if (bok == null)
+            {
+                return NotFound();
+            }
+
+            TypeViewModel model = new TypeViewModel
+            {
+                StatusMessage = StatusMessage,
+                Navn = bok.Navn,
+                Id = bok.Id
+            };
+
+
+            return View(model);
+        }
+
+        // POST: Eier/Delete/5
+        [HttpPost, ActionName("DeleteBok")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBokConfirmed(int id)
+        {
+            BokType type = await _context.BokTyper.SingleOrDefaultAsync(m => m.Id == id);
+
+            _context.BokTyper.Remove(type);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Type));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> BokInfo(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            KlistremerkeBok bok = await _context.Boker
+                .Include(x => x.Merker)
+                .SingleOrDefaultAsync(m => m.Id == id);
+
+
+            KlistremerkebokViewModel model = new KlistremerkebokViewModel
+            {
+                StatusMessage = StatusMessage,
+                Aar = bok.Aar,
+                Navn = bok.Navn,
+                Merker = bok.Merker                
+            };
+            return View(model);
+        }
+
+        [HttpPost, ActionName("EditBok")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBok(KlistremerkebokViewModel model)
+        {
+            KlistremerkeBok bok = await _context.Boker.Include(x => x.Merker).SingleOrDefaultAsync(m => m.Id == model.Id);
+
+            bok.Navn = model.Navn;
+
+            string[] merker = string.IsNullOrEmpty(model.MerkeString) ? 
+                new string[] { } : 
+                model.MerkeString.Split(new []{ ",", " ", ";", "-", "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (bok.Merker == null)
+                bok.Merker = new List<Merke>();
+
+            string klistretInn = "";
+            string bytteMerker = "";
+
+            foreach (string s in merker)
+            {
+                int nummer = int.Parse(s);
+                bool harFraFor = bok.Merker.Any(x => x.Nummer == nummer);
+
+                if (!harFraFor)
+                    klistretInn += $"{s}-";
+                else
+                    bytteMerker += $"{s}-";
+
+                bok.Merker.Add(new Merke
+                {
+                    BokId = bok.Id,
+                    klistretInn = !harFraFor,
+                    Bok = bok,
+                    Nummer = nummer
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(klistretInn))
+                StatusMessage += $"{klistretInn.Remove(klistretInn.Length - 1)} klistret inn. ";
+
+            if (!string.IsNullOrEmpty(bytteMerker))
+                StatusMessage += $"{bytteMerker.Remove(bytteMerker.Length-1)} som nye byttemerker. ";
+
+            return RedirectToAction(nameof(Klistremerkebok));
+        }
+
+    }
+}

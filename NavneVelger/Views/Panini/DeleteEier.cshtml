@@ -1,0 +1,26 @@
+﻿@model EierViewModel
+@using NavneVelger.Views.Panini
+@{
+    ViewData["Title"] = "DeleteEier";
+    ViewData.AddActivePaniniPage(ManagePaniniPages.DeleteEier);
+}
+
+<h2>Slett</h2>
+
+<h3>Er du sikker?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayFor(model => model.Navn)
+        </dt>
+        <dd>
+            <form asp-action="DeleteEier">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="Slett" class="btn btn-default" /> |
+                <a asp-action="Eier">Back to List</a>
+            </form>
+
+        </dd>
+    </dl>
+</div>

@@ -1,0 +1,72 @@
+﻿@model KlistremerkebokViewModel
+@using NavneVelger.Views.Panini
+@{
+    ViewData["Title"] = "Klistremerkebøker";
+    ViewData.AddActivePaniniPage(ManagePaniniPages.Klistremerkebok);
+}
+
+<h4>@ViewData["Title"]</h4>
+@Html.Partial("_StatusMessage", Model.StatusMessage)
+<p>
+    <a asp-action="LeggTilBok">Legg til en ny bok</a>
+</p>
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Navn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EierId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Aar)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Merker)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BytteMerker)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BokTypeId)
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Boker)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Navn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Eier.Navn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Aar)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MerkerAvTotalt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BytteMerker)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type.Type)
+            </td>
+
+            <td class="@ManagePaniniPages.KlistremerkebokNavClass(ViewContext)">
+                <a asp-action="BokInfo" asp-route-id="@item.Id">Mer info</a> |
+                <a asp-action="DeleteBok" asp-route-id="@item.Id">Slett</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
