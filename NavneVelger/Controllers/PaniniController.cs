@@ -438,12 +438,15 @@ namespace NavneVelger.Controllers
 
             string[] fjernDisse = string.IsNullOrEmpty(model.fjernDisse) ?
                 new string[] { } :
-                model.xMangler.Split(new[] { ",", " ", ";", "-", "\r\n", "\r", "\n", "." }, StringSplitOptions.RemoveEmptyEntries);
+                model.fjernDisse.Split(new[] { ",", " ", ";", "-", "\r\n", "\r", "\n", "." }, StringSplitOptions.RemoveEmptyEntries);
 
             List<Merke> merker = _context.Merker
                 .ToList()
                 .Where(x => x.BokId == model.Id && !x.klistretInn)
                 .ToList();
+
+            string disseErKlistretInn = "";
+
 
             foreach (string s in fjernDisse)
             {
@@ -451,7 +454,26 @@ namespace NavneVelger.Controllers
                 Merke fjern = merker.FirstOrDefault(x => x.Nummer == int.Parse(s));
 
                 if (fjern != null)
+                {
                     _context.Merker.Remove(fjern);
+                    StatusMessage += $"{fjern.Nummer}-";
+                }
+                else
+                {
+                    disseErKlistretInn += $"{s}-";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(StatusMessage))
+            {
+                StatusMessage = StatusMessage.Remove(StatusMessage.Length - 1);
+                StatusMessage += " fjernet. ";
+            }
+
+            if (!string.IsNullOrEmpty(disseErKlistretInn))
+            {
+                disseErKlistretInn = disseErKlistretInn.Remove(disseErKlistretInn.Length - 1);
+                StatusMessage += $@"<br \> {disseErKlistretInn} er allerede klistret inn, eller fins ikke i samlingen.";
             }
 
 
@@ -459,8 +481,5 @@ namespace NavneVelger.Controllers
 
             return RedirectToAction(nameof(Klistremerkebok));
         }
-
-
-
     }
 }

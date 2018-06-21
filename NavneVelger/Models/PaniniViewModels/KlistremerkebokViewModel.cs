@@ -40,7 +40,7 @@ namespace NavneVelger.Models.PaniniViewModels
             get
             {
                 if (Merker != null)
-                    return String.Join("-", Merker.OrderBy(x => x.Nummer).Where(x => !x.klistretInn).Select(x => x.Nummer));
+                    return String.Join("-", Merker.OrderBy(x => x.Nummer).Where(x => !x.klistretInn).Select(x => x.Nummer).Distinct());
 
                 return "";
             }
