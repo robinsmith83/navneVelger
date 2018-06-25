@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,9 +19,14 @@ namespace NavneVelger.Models
 
         public int Id { get; set; }
 
+        [JsonProperty("timestamp")]
+        public DateTime Timestamp { get; set; }
+        [JsonProperty("value")]
+        public double Value { get; set; }
 
         public string StatusMessage { get; set; }
         public List<Consumption> Consumption { get; set; }
+        public List<Consumption> ConsumptionHourly { get; set; }
     }
 
     public class Consumption
@@ -38,5 +44,14 @@ namespace NavneVelger.Models
                 return From.ToString("MMM yy");
             }                
         }
+
+        public string FormattedDateTime
+        {
+            get
+            {
+                return From.ToString("g");
+            }
+        }
+
     }
 }

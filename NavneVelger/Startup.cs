@@ -12,6 +12,8 @@ using NavneVelger.Data;
 using NavneVelger.Models;
 using NavneVelger.Services;
 using NavneVelger.DataContexts;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace NavneVelger
 {
@@ -56,6 +58,15 @@ namespace NavneVelger
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            var locale = Configuration["SiteLocale"];
+            RequestLocalizationOptions localizationOptions = new RequestLocalizationOptions
+            {
+                SupportedCultures = new List<CultureInfo> { new CultureInfo(locale) },
+                SupportedUICultures = new List<CultureInfo> { new CultureInfo(locale) },
+                DefaultRequestCulture = new RequestCulture(locale)
+            };
+            app.UseRequestLocalization(localizationOptions);
 
             app.UseStaticFiles();
 

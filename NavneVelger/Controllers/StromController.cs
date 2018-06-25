@@ -60,6 +60,18 @@ namespace NavneVelger.Controllers
                           consumptionUnit
                         }
                       }
+                    time:consumption(resolution: HOURLY, last: 24) {
+                            nodes {
+                                from
+                                to
+                                totalCost
+                                unitCost
+                                unitPrice
+                                unitPriceVAT
+                                consumption
+                                consumptionUnit
+                            }
+                            }
                       currentSubscription {
                         priceInfo {
                           current {
@@ -108,7 +120,36 @@ namespace NavneVelger.Controllers
                         );
                 }
 
+                model.ConsumptionHourly = new List<Consumption>();
+                for (int i = 0; i < response.Data.viewer.homes[0].time.nodes.Count; i++)
+                {
+                    double price = 0;
+                    if (response.Data.viewer.homes[0].time.nodes[i].unitPrice != null)
+                        price = response.Data.viewer.homes[0].time.nodes[i].unitPrice * 100;
+
+                    double cost = 0;
+                    if (response.Data.viewer.homes[0].time.nodes[i].totalCost != null)
+                        cost = response.Data.viewer.homes[0].time.nodes[i].totalCost;
+
+                    double consumptionInPeriod = 0;
+                    if (response.Data.viewer.homes[0].time.nodes[i].consumption != null)
+                        consumptionInPeriod = response.Data.viewer.homes[0].time.nodes[i].consumption;
+
+                    model.ConsumptionHourly.Add(
+                        new Consumption
+                        {
+                            From = response.Data.viewer.homes[0].time.nodes[i].from,
+                            To = response.Data.viewer.homes[0].time.nodes[i].to,
+                            Cost = cost,
+                            Price = price,
+                            ConsumptionInPeriod = consumptionInPeriod
+                        }
+                        );
+                }
+
+
                 model.Consumption.Reverse();
+                model.ConsumptionHourly.Reverse();
 
             }
             else
@@ -121,33 +162,6 @@ namespace NavneVelger.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public ActionResult Chart()
-        {
-
-
-            var dataForChart = new[]
-            {
-                new
-                {
-                    label = "Test",
-                    value = 5
-                },
-                new
-                {
-                    label = "Test2",
-                    value = 7
-                }
-            };
-
-            var result = Json(dataForChart);
-            return result;
-        }
-
-        private object Json(object[] dataForChart, object allowGet)
-        {
-            throw new NotImplementedException();
         }
     }
 }
