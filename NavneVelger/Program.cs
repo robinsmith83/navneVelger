@@ -20,8 +20,31 @@ namespace NavneVelger
         {
             IWebHost host = BuildWebHost(args);
             MigrateDatabase(host);
+
+            SetupUserRoles(host);
+
             host.Run();
 
+        }
+
+        public static void SetupUserRoles(IWebHost host)
+        {
+            using (IServiceScope scope = host.Services.CreateScope())
+            {
+                IServiceProvider services = scope.ServiceProvider;
+                try
+                {
+                    IServiceProvider serviceProvider = services.GetRequiredService<IServiceProvider>();
+                    IConfiguration configuration = services.GetRequiredService<IConfiguration>();
+                    Seed.CreateRoles(serviceProvider, configuration).Wait();
+
+                }
+                catch (Exception exception)
+                {
+                    ILogger<Program> logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(exception, "An error occurred while creating roles");
+                }
+            }
         }
 
         public static void MigrateDatabase(IWebHost host)

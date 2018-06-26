@@ -11,9 +11,10 @@ using System;
 namespace NavneVelger.Migrations
 {
     [DbContext(typeof(BokerDb))]
-    partial class BokerDbModelSnapshot : ModelSnapshot
+    [Migration("20180626074225_updateEierWithUserIdString")]
+    partial class updateEierWithUserIdString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

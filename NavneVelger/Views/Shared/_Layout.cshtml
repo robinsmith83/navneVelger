@@ -31,9 +31,15 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Navn">Velg Navn</a></li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li><a asp-area="" asp-controller="Home" asp-action="Navn">Velg Navn</a></li>
+                    }
                     <li><a asp-area="" asp-controller="Panini" asp-action="Index">Panini</a></li>
-                    <li><a asp-area="" asp-controller="Strom" asp-action="Index">Strøm</a></li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li><a asp-area="" asp-controller="Strom" asp-action="Index">Strøm</a></li>
+                    }
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>

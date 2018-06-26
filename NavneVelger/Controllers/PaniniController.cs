@@ -31,7 +31,7 @@ namespace NavneVelger.Controllers
             _context = context;
         }
 
-        //[Authorize]
+        [Authorize]
         public IActionResult Index()
         {
             return View();
@@ -46,11 +46,18 @@ namespace NavneVelger.Controllers
                 throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            var users = _userManager.Users.Select(x => new { Id = x.Id, Value = x.UserName });
+
             EierViewModel model = new EierViewModel
             {
                 StatusMessage = StatusMessage,
-                Eiere = await _context.Eiere.ToListAsync()
+                Eiere = await _context.Eiere.ToListAsync(),
+                Users = new SelectList(users, "Id", "Value"),
             };
+
+            model.Users.First().Selected = true;
+
+
             return View(model);
         }
 
@@ -64,7 +71,8 @@ namespace NavneVelger.Controllers
 
             Eier eier = new Eier
             {
-                Navn = model.Navn
+                Navn = model.Navn,
+                UserId = model.UserId
             };
 
             await _context.Eiere.AddAsync(eier);
@@ -196,10 +204,32 @@ namespace NavneVelger.Controllers
                 throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            List<KlistremerkeBok> boker = new List<KlistremerkeBok>();
+
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                boker = _context.Boker
+                    .Include(x => x.Type)
+                    .Include(x => x.Merker)
+                    .Include(x => x.Eier)
+                    .ToList();
+
+            }
+            else
+            {
+                boker = _context.Boker
+                    .Include(x => x.Type)
+                    .Include(x => x.Merker)
+                    .Include(x => x.Eier)
+                    .Where(x => x.Eier.UserId == user.Id)
+                    .ToList();
+            }
+
+
             KlistremerkebokViewModel model = new KlistremerkebokViewModel
             {
                 StatusMessage = StatusMessage,
-                Boker = _context.Boker.Include(x => x.Type).Include(x => x.Merker).Include(x => x.Eier).ToList(),
+                Boker = boker,
                 Merker = _context.Merker.ToList()
                 
             };
@@ -219,7 +249,7 @@ namespace NavneVelger.Controllers
             var bokTyper = _context.BokTyper.OrderBy(x => x.Type).Select(x => new { Id = x.Id.ToString(), Value = x.Type });
 
             List<int> aarList = new List<int>();
-            for (int i = 1958; i < DateTime.Now.Year+2; i++)
+            for (int i = 1958; i < DateTime.Now.Year+3; i++)
             {
                 aarList.Add(i);
             }
@@ -236,6 +266,7 @@ namespace NavneVelger.Controllers
 
             model.Eiere.First().Selected = true;
             model.BokTyper.First().Selected = true;
+            model.AarList.First(x => x.Value == DateTime.Now.Year.ToString()).Selected = true;
 
             return View(model);
         }
@@ -310,12 +341,18 @@ namespace NavneVelger.Controllers
                 return NotFound();
             }
 
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
             KlistremerkeBok bok = await _context.Boker
                 .Include(x => x.Merker)
+                .Include(x => x.Eier)
                 .SingleOrDefaultAsync(m => m.Id == id);
 
-
-            KlistremerkebokViewModel model = new KlistremerkebokViewModel
+                        KlistremerkebokViewModel model = new KlistremerkebokViewModel
             {
                 StatusMessage = StatusMessage,
                 Aar = bok.Aar,
@@ -332,7 +369,8 @@ namespace NavneVelger.Controllers
         {
             KlistremerkeBok bok = await _context.Boker.Include(x => x.Merker).SingleOrDefaultAsync(m => m.Id == model.Id);
 
-            bok.Navn = model.Navn;
+            if (!string.IsNullOrEmpty(model.Navn))
+                bok.Navn = model.Navn;
 
             string[] merker = string.IsNullOrEmpty(model.MerkeString) ? 
                 new string[] { } : 

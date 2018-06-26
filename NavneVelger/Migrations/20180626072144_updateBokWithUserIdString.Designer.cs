@@ -11,9 +11,10 @@ using System;
 namespace NavneVelger.Migrations
 {
     [DbContext(typeof(BokerDb))]
-    partial class BokerDbModelSnapshot : ModelSnapshot
+    [Migration("20180626072144_updateBokWithUserIdString")]
+    partial class updateBokWithUserIdString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,8 +42,6 @@ namespace NavneVelger.Migrations
                         .IsRequired()
                         .HasMaxLength(255);
 
-                    b.Property<string>("UserId");
-
                     b.HasKey("Id");
 
                     b.ToTable("Eiere");
@@ -63,6 +62,8 @@ namespace NavneVelger.Migrations
                     b.Property<int>("TotaltAntallMerker");
 
                     b.Property<int?>("TypeId");
+
+                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 

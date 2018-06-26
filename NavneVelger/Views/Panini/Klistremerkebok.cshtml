@@ -8,7 +8,10 @@
 <h4>@ViewData["Title"]</h4>
 @Html.Partial("_StatusMessage", Model.StatusMessage)
 <p>
-    <a asp-action="LeggTilBok">Legg til en ny bok</a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="LeggTilBok">Legg til en ny bok</a>
+    }
 </p>
 <br />
 <table class="table">
@@ -59,8 +62,15 @@
             </td>
 
             <td class="@ManagePaniniPages.KlistremerkebokNavClass(ViewContext)">
-                <a asp-action="BokInfo" asp-route-id="@item.Id">Mer info</a> |
-                <a asp-action="DeleteBok" asp-route-id="@item.Id">Slett</a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="BokInfo" asp-route-id="@item.Id">Mer info</a>   <a asp-action="DeleteBok" asp-route-id="@item.Id">Slett</a>
+                }
+                else
+                {
+                    <a asp-action="BokInfo" asp-route-id="@item.Id">Mer info</a>
+                }
             </td>
         </tr>
         }

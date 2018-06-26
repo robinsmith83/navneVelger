@@ -1,4 +1,5 @@
-﻿using Panini.Entities;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Panini.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,6 +18,10 @@ namespace NavneVelger.Models.PaniniViewModels
         public int Id { get; set; }
 
         public List<Eier> Eiere { get; set; }
+
+        public string UserId { get; set; }
+
+        public SelectList Users { get; set; }
 
         public string StatusMessage { get; set; }
     }

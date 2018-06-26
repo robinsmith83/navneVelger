@@ -17,5 +17,7 @@ namespace Panini.Entities
         [StringLength(255)]
         public string Navn { get; set; }
         public List<KlistremerkeBok> Boker { get; set; }
+        public string UserId { get; set; }
+
     }
 }
