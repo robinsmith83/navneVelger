@@ -1,0 +1,65 @@
+﻿@model NavnViewModel
+@{
+    ViewData["Title"] = "Ranger navn";
+}
+<h3>@ViewData["Title"]</h3>
+@Html.Partial("_StatusMessage", Model.StatusMessage)
+
+<h4>Ranger navn</h4>
+
+<hr />
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="row">
+                @Html.DisplayFor(x => x.Navn)
+            </div>
+            <div class="row">
+                @Html.DisplayFor(x => x.Navn2)
+            </div>
+
+        </div>
+    </div>
+    <hr />
+    @foreach (var item in Model.NavnRangeringList)
+    {
+        <div class="row">
+            @Html.DisplayFor(modelItem => item.Navn)
+
+        </div>
+    }
+
+</div>
+<hr />
+<h4>Legg til nye navn</h4>
+<div class="container">
+    <div class="row">
+        <form asp-action="LeggTilNavn">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Navn" class="control-label"></label>
+                <textarea asp-for="Navn" class="form-control" />
+                <div class="radio">
+                    <
+                </div>
+                <label asp-for="Gender" class="control-label">Kjønn</label>
+                <select asp-for="Aar" asp-items="@Model.AarList" class="form-control"></select>
+                <label asp-for="EierId" class="control-label"></label>
+                <select asp-for="EierId" asp-items="@Model.Eiere" class="form-control"></select>
+                <label asp-for="BokTypeId" class="control-label"></label>
+                <select asp-for="BokTypeId" asp-items="@Model.BokTyper" class="form-control"></select>
+                <label asp-for="TotaltAntallMerker" class="control-label"></label>
+                <input asp-for="TotaltAntallMerker" class="form-control" />
+
+
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Legg til" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+

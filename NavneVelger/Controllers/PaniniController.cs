@@ -352,7 +352,16 @@ namespace NavneVelger.Controllers
                 .Include(x => x.Eier)
                 .SingleOrDefaultAsync(m => m.Id == id);
 
-                        KlistremerkebokViewModel model = new KlistremerkebokViewModel
+            bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+            if (!isAdmin)
+                if (user.Id != bok.Eier.UserId)
+                {
+                    StatusMessage = "Du kan kun endre dine egne bøker";
+                    return RedirectToAction(nameof(Klistremerkebok));
+                }
+
+            KlistremerkebokViewModel model = new KlistremerkebokViewModel
             {
                 StatusMessage = StatusMessage,
                 Aar = bok.Aar,
@@ -416,8 +425,6 @@ namespace NavneVelger.Controllers
         public async Task<IActionResult> SjekkBytter(KlistremerkebokViewModel model)
         {
             KlistremerkeBok bok = await _context.Boker.Include(x => x.Merker).SingleOrDefaultAsync(m => m.Id == model.Id);
-
-            bok.Navn = model.Navn;
 
             string[] xMangler = string.IsNullOrEmpty(model.xMangler) ?
                 new string[] { } :

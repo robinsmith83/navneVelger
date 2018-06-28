@@ -56,6 +56,10 @@ namespace NavneVelger
 
                 BokerDb bokerContext = scope.ServiceProvider.GetRequiredService<BokerDb>();
                 bokerContext.Database.Migrate();
+
+                NavneVelgerDb navnContext = scope.ServiceProvider.GetRequiredService<NavneVelgerDb>();
+                navnContext.Database.Migrate();
+
             }
         }
 
