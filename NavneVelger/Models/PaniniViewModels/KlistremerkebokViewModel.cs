@@ -34,6 +34,7 @@ namespace NavneVelger.Models.PaniniViewModels
 
         [Display(Name = "Antall merker")]
         public List<Merke> Merker { get; set; }
+        public List<bool> MerkerForAvhuking { get; set; }
         [Display(Name = "Merker")]
         public string MerkeString { get; set; }
         public string BytteString {

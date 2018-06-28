@@ -361,15 +361,98 @@ namespace NavneVelger.Controllers
                     return RedirectToAction(nameof(Klistremerkebok));
                 }
 
+            List<bool> merkerForAvhuking = Enumerable.Repeat(false, bok.TotaltAntallMerker+1).ToList();
+
+            foreach (Merke merke in bok.Merker.Where(x => x.klistretInn))
+                merkerForAvhuking[merke.Nummer] = true;
+
             KlistremerkebokViewModel model = new KlistremerkebokViewModel
             {
+                Id = bok.Id,
                 StatusMessage = StatusMessage,
                 Aar = bok.Aar,
                 Navn = bok.Navn,
                 Merker = bok.Merker,
+                MerkerForAvhuking = merkerForAvhuking,
                 TotaltAntallMerker = bok.TotaltAntallMerker
             };
             return View(model);
+        }
+
+        [HttpGet, Route("Panini/HukAv/{nummer:int}/{bokId:int}")]
+        public async Task<IActionResult> HukAv(int nummer, int bokId)
+        {
+            KlistremerkeBok bok = await _context.Boker
+                .Include(x => x.Merker)
+                .SingleOrDefaultAsync(m => m.Id == bokId);
+
+            if (bok.Merker.Any(x => x.Nummer == nummer))
+            {
+                StatusMessage = $"{nummer} lagt til";
+                bok.Merker.RemoveAll(x => x.Nummer == nummer);
+            }
+            else
+            {
+                StatusMessage = $"{nummer} fjernet";
+                bok.Merker.Add(new Merke
+                {
+                    BokId = bok.Id,
+                    klistretInn = true,
+                    Bok = bok,
+                    Nummer = nummer
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Klistremerkebok));
+        }
+
+        [HttpPost, ActionName("hukeAvMerker")]
+        [DisableRequestSizeLimit]
+        public async Task<IActionResult> OppdaterMerker(KlistremerkebokViewModel klistremerkebokViewModel)
+        {
+            KlistremerkeBok bok = await _context.Boker
+                .Include(x => x.Merker)
+                .SingleOrDefaultAsync(m => m.Id == klistremerkebokViewModel.Id);
+            string lagtTil = "Klistret inn: ";
+            string fjernet = " Fjernet: ";
+
+            for (int i = 0; i < klistremerkebokViewModel.MerkerForAvhuking.Count; i++)
+            {
+                bool klistretInn = klistremerkebokViewModel.MerkerForAvhuking[i];
+
+                if (klistretInn)
+                {
+                    if (!bok.Merker.Any(x => x.Nummer == i))
+                    {
+                        lagtTil += $"{i},";
+                        bok.Merker.Add(new Merke
+                        {
+                            BokId = bok.Id,
+                            klistretInn = true,
+                            Bok = bok,
+                            Nummer = i
+                        });
+                    }
+                }
+                else
+                {
+                    if (bok.Merker.Any(x => x.Nummer == i))
+                    {
+                        fjernet += $"{i},";
+                        bok.Merker.RemoveAll(x => x.Nummer == i);
+                    }
+
+                }
+            }
+
+            StatusMessage += $"{lagtTil.Remove(lagtTil.Length - 1)} ";
+
+            StatusMessage += $"{fjernet.Remove(fjernet.Length - 1)} ";
+
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Klistremerkebok));
         }
 
         [HttpPost, ActionName("EditBok")]

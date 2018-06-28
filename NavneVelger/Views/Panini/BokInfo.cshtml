@@ -12,6 +12,7 @@
     <li><a href="#merkeStreng" data-toggle="tab">Bytte-strenger</a></li>
     <li><a href="#sjekkBytte" data-toggle="tab">Sjekk bytter</a></li>
     <li><a href="#fjernBytteMerker" data-toggle="tab">Fjern byttemerker</a></li>
+    <li><a href="#avhukeMerker" data-toggle="tab">Huk av merker</a></li>
 </ul>
 
 <div class="row tab-content">
@@ -114,8 +115,56 @@
             </form>
         </div>
     </div>
+
+    <div class="tab-pane fade" id="avhukeMerker">
+        <br />
+        <form asp-action="hukeAvMerker" role="form">
+            <div class="row">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                @{
+                    for (int i = 0; i <= Model.TotaltAntallMerker; i++)
+                    {
+                        <div class="col-md-2">
+                            <bootstrap-input-group class="input-group">
+                                <bootstrap-input-group-addon class="input-group-addon">
+                                    <input asp-for="MerkerForAvhuking[i]" type="checkbox" class="toggle" />
+                                </bootstrap-input-group-addon>
+                                <label asp-for="@i" class="form-control">@i</label>
+                            </bootstrap-input-group>
+                        </div>
+                    }
+                }
+            </div>
+            <br />
+            <div class="row">
+                <div class="form-group col-md-1">
+                    <input type="submit" value="Lagre" class="btn btn-default" />
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div>
     <a asp-action="Klistremerkebok">Tilbake</a>
 </div>
+
+@section scripts {
+    <script>
+    $(function () {
+        $('.toggle').change(function () {
+            var id = this.id.split("_");
+            var url = '/Panini/HukAv/' + id[1] + '/' + @Model.Id;
+            $.ajax({
+                url: url,
+                cache: false,
+                method: 'GET',
+                success: function (data) {  },
+                error: function () { alert('error'); }
+            });
+        });
+    });
+    </script>
+}

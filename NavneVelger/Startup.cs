@@ -14,6 +14,7 @@ using NavneVelger.Services;
 using NavneVelger.DataContexts;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace NavneVelger
 {
@@ -38,6 +39,11 @@ namespace NavneVelger
             services.AddDbContext<NavneVelgerDb>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.Configure<FormOptions>(x =>
+                x.MultipartBodyLengthLimit = long.MaxValue);
+
+            services.Configure<FormOptions>(x =>
+                x.ValueCountLimit = 10000);
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
